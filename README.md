@@ -1,8 +1,8 @@
 # ✈️ Flight Disruption Recovery Assistant
 
-**An AI-powered web application for finding alternative flights during cancellations and delays.**
+**A rule-based web application for finding alternative flights during cancellations and delays.**
 
-Intelligent flight recovery system with real-time disruption news feeds and professional UI/UX.
+Intelligent heuristic flight recovery system using keyword matching, SQL query generation, and multi-factor scoring with real-time disruption news feeds.
 
 ![Flight Disruption Recovery Assistant](assets/basic.png)
 
@@ -12,11 +12,11 @@ Intelligent flight recovery system with real-time disruption news feeds and prof
 
 ### Core Capabilities
 - **🚨 Disruption Recovery Mode** - Enter a flight ID and instantly get best alternatives
-- **🔍 Smart Flight Search** - Natural language queries for flight searches
-- **🤖 Intent Detection** - Automatically understands if you're searching or recovering
+- **🔍 Smart Flight Search** - Keyword-based queries for flight searches
+- **🎯 Intent Detection** - Pattern matching to detect search vs recovery mode
 - **⭐ Intelligent Ranking** - Flights scored on 5 factors: seats, timing, weather, congestion, reliability
 - **💡 Explainability** - Click "Why this flight?" to see scoring breakdown
-- **⚡ Lightning Fast** - Caching optimization for instant responses
+- **⚡ Lightning Fast** - Rule-based processing with caching for instant responses
 
 ### Product Features
 - Clean Streamlit chat interface
@@ -33,13 +33,19 @@ Intelligent flight recovery system with real-time disruption news feeds and prof
 
 ```
 Python 3.10+
-Streamlit 1.40+
-SQLite3
-LangGraph (agent workflow)
+Streamlit 1.40+ (UI framework)
+SQLite3 (database)
 Flask (RSS API server)
-Pandas
 feedparser (RSS parsing)
+deep-translator (i18n support)
+requests (HTTP client)
 ```
+
+**Architecture Pattern**: Rule-based agent workflow (no LLMs or RAG)
+- Keyword tokenization for intent detection
+- Dictionary-based parameter extraction
+- Parameterized SQL query generation
+- Heuristic-based multi-factor scoring
 
 ---
 
@@ -317,17 +323,18 @@ The app supports **dual data sources**:
 
 **Default filter**: "Live Only" mode (synced flights take priority)
 
-Toggle in sidebar to switch between fake/live/all data sources.
-
----
-
+Toggle in siKeyword-Based Search
+```
+User: "Show flights from Delhi to Pune tomorrow afternoon"
+→ System extracts via pattern matching
 ## 📝 How to Use
 
 ### Mode 1: Natural Language Search
 ```
 User: "Show flights from Delhi to Pune tomorrow afternoon"
 → Agent extracts: source=Delhi, destination=Pune, date=tomorrow, time=afternoon
-→ Returns ranked flights with explanations
+→ System extracts flight ID via regex pattern
+→ Fetches original flight from databasexplanations
 ```
 
 ### Mode 2: Disruption Recovery (Main Demo)
@@ -364,10 +371,11 @@ Shows: "Selected due to low weather risk, available seats, and optimal afternoon
 
 ## 🏗️ Architecture
 
-```
-app.py
-├── Streamlit UI (chat, disruption mode, explainability)
-├── Session state management
+```Rule-based workflow - no LLMs)
+├── intent_extractor: Keyword matching for search vs recovery
+├── _extract_search_params: Dictionary-based city/time extraction
+├── db_query_node: Execute parameterized SQL queries
+├── ranking_node: Heuristic-based flight scoring
 ├── Live data sync controls (OpenSky integration)
 └── Caching for performance
 
